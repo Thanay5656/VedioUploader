@@ -5,16 +5,11 @@ import secrets
 from flask import Flask, request, jsonify, render_template, abort
 import boto3
 from botocore.exceptions import ClientError
-
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
-
-# Ensure S3 bucket is properly configured via environment
 BUCKET = os.environ.get('S3_BUCKET')
 if not BUCKET:
     raise RuntimeError("Environment variable S3_BUCKET is not set. Please set it to your AWS S3 bucket name.")
-
-# Initialize SQLite DB
 conn = sqlite3.connect('videos.db', check_same_thread=False)
 cursor = conn.cursor()
 cursor.execute('''
@@ -24,8 +19,6 @@ CREATE TABLE IF NOT EXISTS videos (
 )
 ''')
 conn.commit()
-
-# Initialize S3 client
 s3 = boto3.client('s3')
 
 def create_presigned_put(key, expires=3600):
@@ -81,3 +74,4 @@ def list_videos():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
